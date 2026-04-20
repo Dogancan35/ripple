@@ -1,5 +1,4 @@
 name: Build
-
 on:
   push:
     branches: [main]
@@ -8,20 +7,25 @@ on:
 
 jobs:
   build:
-    runs-on: macos-14
-
+    runs-on: macos-15
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
-      - name: Setup XcodeGen
-        run: |
-          which xcodegen || brew install xcodegen
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: "16.0"
 
       - name: Generate project
         run: |
-          python3 gen_ripple.py
+          if ! command -v xcodegen &> /dev/null; then brew install xcodegen; fi
+          xcodegen generate
 
       - name: Build
         run: |
-          xcodebuild -project Ripple.xcodeproj -scheme Ripple -configuration Debug -destination 'platform=iOS Simulator,name=iPhone 15' build CODE_SIGN_IDENTITY="-" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+          xcodebuild -project Ripple.xcodeproj \
+            -scheme Ripple \
+            -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' \
+            build 2>&1 | tail -30

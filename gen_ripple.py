@@ -3,7 +3,7 @@
 
 import os
 
-PROJECT_DIR = "/data/.openclaw/workspace/Ripple"
+PROJECT_DIR = "."
 SOURCES = [
     "RippleApp.swift",
     "ContentView.swift",
